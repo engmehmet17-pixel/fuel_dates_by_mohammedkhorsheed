@@ -1,188 +1,179 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2c3e50">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مواعيد تزويد الحصة الوقودية - كركوك</title>
+    <title>تطبيق الوقود - كركوك</title>
     <style>
-        :root {
-            --primary: #2ecc71;
-            --accent: #3498db;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --dark: #2c3e50;
-            --bg: #f0f3f5;
+        :root { --primary: #2ecc71; --accent: #3498db; --dark: #2c3e50; --light: #f4f7f6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body { background-color: var(--dark); height: 100dvh; display: flex; justify-content: center; overflow: hidden; }
+
+        .app-card { 
+            background: white; width: 100%; max-width: 400px; height: 100%; 
+            display: flex; flex-direction: column; position: relative;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
-        .app-container { width: 100%; max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        .header { background: var(--dark); color: white; padding: 20px 15px; text-align: center; border-bottom: 5px solid var(--accent); }
-        .header h1 { margin: 0; font-size: 1.1rem; }
-        .dev-info { font-size: 0.7rem; opacity: 0.8; margin-top: 8px; line-height: 1.5; }
-        .status-section { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .indicator { width: 140px; height: 140px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 8px solid #eee; margin-bottom: 15px; background: #fff; position: relative; }
-        .day-badge { position: absolute; top: -5px; right: -5px; background: var(--accent); color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .indicator-icon { font-size: 3.5rem; }
-        .message { font-size: 1.5rem; font-weight: bold; margin-bottom: 5px; }
-        .timer-container { background: #f8f9fa; padding: 15px; border-radius: 12px; margin-top: 10px; border: 1px solid #e0e0e0; text-align: center; width: 90%; }
-        .timer-label { font-size: 0.8rem; color: #7f8c8d; margin-bottom: 8px; display: block; }
-        .timer-digits { font-family: 'Courier New', monospace; font-size: 1.2rem; font-weight: bold; color: var(--dark); line-height: 1.4; }
-        .sub-text { color: #7f8c8d; font-size: 0.95rem; margin: 15px 0; text-align: center; }
-        .actions { padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #fff; }
-        .btn { border: none; padding: 18px; border-radius: 15px; font-weight: bold; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
-        .btn-main { background: var(--primary); color: white; width: 100%; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); }
-        .btn-main:disabled { background: #bdc3c7 !important; box-shadow: none; cursor: not-allowed; }
-        .btn-clear { background: transparent; color: var(--danger); font-size: 0.85rem; border: 1px solid #eee; padding: 10px; margin-top: 5px; border-radius: 10px; }
-        .history-section { background: #fdfdfd; padding: 20px; border-top: 1px solid #eee; }
-        .history-title { font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; display: block; border-right: 4px solid var(--accent); padding-right: 10px; }
-        .history-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 0.85rem; }
+
+        /* هيدر مدمج يوفر مساحة */
+        .app-header { 
+            background: var(--dark); color: white; padding: 15px; 
+            text-align: center; border-bottom: 4px solid var(--accent); flex-shrink: 0;
+        }
+        .header-top { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 5px; }
+        .header-top h1 { font-size: 1rem; }
+        .cycle-badge { background: var(--accent); color: white; padding: 2px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
+        .rights { font-size: 0.6rem; opacity: 0.7; line-height: 1.4; }
+
+        .main-content { 
+            flex-grow: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: space-around; padding: 15px;
+        }
+
+        .status-circle {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: var(--light); border: 5px solid #eee;
+            display: flex; align-items: center; justify-content: center; font-size: 3rem;
+        }
+
+        .info-group { text-align: center; }
+        .main-msg { font-size: 1.3rem; font-weight: bold; color: var(--dark); margin-bottom: 5px; }
+        .sub-msg { font-size: 0.8rem; color: #7f8c8d; }
+
+        .timer-display {
+            background: #f9f9f9; width: 90%; padding: 10px;
+            border-radius: 15px; border: 1px solid #eee; text-align: center;
+        }
+        .timer-display span { display: block; font-size: 0.65rem; color: #95a5a6; margin-bottom: 4px; }
+        .timer-val { font-family: monospace; font-size: 1.1rem; font-weight: bold; color: var(--dark); }
+
+        .btn-action {
+            background: var(--primary); color: white; border: none;
+            padding: 12px 40px; border-radius: 30px; font-weight: bold;
+            font-size: 0.9rem; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+        }
+        .btn-action:disabled { background: #bdc3c7; box-shadow: none; }
+
+        /* سجل التسجيل بأسلوب البطاقة المرتفعة لضمان الظهور */
+        .history-card {
+            background: #fff; border-top: 1px solid #eee;
+            padding: 10px 20px; height: 110px; flex-shrink: 0;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.03);
+        }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .history-header h2 { font-size: 0.75rem; color: var(--dark); border-right: 3px solid var(--accent); padding-right: 8px; }
+        .btn-clear { font-size: 0.65rem; color: #e74c3c; background: none; border: none; cursor: pointer; }
+        
+        .history-list { height: 60px; overflow-y: auto; }
+        .history-item { display: flex; justify-content: space-between; font-size: 0.7rem; padding: 5px 0; border-bottom: 1px dashed #eee; color: #555; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <h1>مواعيد تزويد الحصة الوقودية - كركوك ⛽</h1>
-        <div id="date-display" style="font-size: 0.9rem; margin-top: 8px; font-weight: bold; color: #3498db;"></div>
-        <div class="dev-info">
-            فكرة وتصميم: م. محمد سهران خورشيد<br>
-            جميع الحقوق محفوظة © 2026
+<div class="app-card">
+    <div class="app-header">
+        <div class="header-top">
+            <h1>مواعيد الوقود - كركوك</h1>
+            <div id="day-badge" class="cycle-badge">اليوم .. من ..</div>
+        </div>
+        <div class="rights">
+            م. محمد سهران خورشيد | © 2026<br>
+            <span id="current-date" style="color: var(--accent); font-weight: bold;"></span>
         </div>
     </div>
 
-    <div class="status-section">
-        <div id="indicator" class="indicator">
-            <div id="day-counter" class="day-badge">اليوم ؟</div>
-            <span class="indicator-icon">⛽</span>
-        </div>
-        <div id="msg-main" class="message">جاري الحساب...</div>
-        
-        <div class="timer-container">
-            <span class="timer-label" id="timer-title">متبقي على الموعد القادم:</span>
-            <div class="timer-digits" id="countdown">00:00:00:00</div>
+    <div class="main-content">
+        <div class="status-circle">⛽</div>
+
+        <div class="info-group">
+            <div id="status-text" class="main-msg">جاري الحساب...</div>
+            <div id="sub-status" class="sub-msg">يرجى الانتظار</div>
         </div>
 
-        <div id="msg-sub" class="sub-text"></div>
+        <div class="timer-display">
+            <span id="timer-label">الوقت المتبقي:</span>
+            <div id="countdown" class="timer-val">00:00:00</div>
+        </div>
+
+        <button id="main-btn" class="btn-action" onclick="logAction()">✅ سجلت تعبئة اليوم</button>
     </div>
 
-    <div class="actions">
-        <button id="fuel-btn" class="btn btn-main" onclick="logFueling()">✅ سجلت تعبئة اليوم</button>
-        <button class="btn btn-clear" onclick="clearHistory()">🗑️ مسح سجل العمليات</button>
-    </div>
-
-    <div class="history-section">
-        <span class="history-title">آخر العمليات المسجلة:</span>
-        <div id="log-list"></div>
+    <div class="history-card">
+        <div class="history-header">
+            <h2>آخر العمليات</h2>
+            <button class="btn-clear" onclick="clearLogs()">🗑️ مسح السجل</button>
+        </div>
+        <div id="history-content" class="history-list"></div>
     </div>
 </div>
 
 <script>
-    // الإعدادات: 31 آذار 2026 هو اليوم الأول
-    const baseDate = new Date(2026, 2, 31); 
-    const cycleDays = 5;
+    const startPoint = new Date(2026, 2, 31); 
+    const cycle = 5;
 
-    function updateApp() {
+    function refresh() {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        document.getElementById('current-date').innerText = now.toLocaleDateString('ar-IQ', { weekday: 'long', day: 'numeric', month: 'long' });
+
+        const diff = Math.floor((today - startPoint) / 86400000);
+        let currentDay = ((diff % cycle) + cycle) % cycle + 1;
+        let wait = (currentDay === 1) ? 0 : (cycle - currentDay + 1);
+
+        document.getElementById('day-badge').innerText = `اليوم ${currentDay} من ${cycle}`;
         
-        document.getElementById('date-display').innerText = now.toLocaleDateString('ar-IQ', { 
-            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' 
-        });
+        const logs = JSON.parse(localStorage.getItem('fuelLogs') || "[]");
+        const doneToday = logs.some(l => l.includes(today.toLocaleDateString('ar-IQ')));
+        const btn = document.getElementById('main-btn');
+        btn.disabled = doneToday;
+        btn.innerText = doneToday ? "تم التسجيل بنجاح ✅" : "✅ سجلت تعبئة اليوم";
 
-        // حساب اليوم في الدورة
-        const diffTime = today.getTime() - baseDate.getTime();
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        let dayInCycle = ((diffDays % cycleDays) + cycleDays) % cycleDays + 1;
-
-        // حساب أيام التفعيل القادم
-        let daysUntilNext = (dayInCycle === 1) ? 0 : (cycleDays - dayInCycle + 1);
-        const nextDate = new Date(today);
-        nextDate.setDate(today.getDate() + daysUntilNext);
-        nextDate.setHours(0, 0, 0, 0);
-
-        const mMain = document.getElementById('msg-main');
-        const mSub = document.getElementById('msg-sub');
-        const btn = document.getElementById('fuel-btn');
-        const dayBadge = document.getElementById('day-counter');
-        const timerTitle = document.getElementById('timer-title');
-
-        dayBadge.innerText = `اليوم ${dayInCycle} من ${cycleDays}`;
-
-        const history = JSON.parse(localStorage.getItem('fuelHistory') || "[]");
-        const alreadyDone = history.some(item => item.includes(today.toLocaleDateString('ar-IQ')));
-
-        if (alreadyDone) {
-            btn.disabled = true;
-            btn.innerText = "تم تسجيل التعبئة اليوم ✅";
-        } else {
-            btn.disabled = false;
-            btn.innerText = "✅ سجلت تعبئة اليوم";
-        }
-
-        if (dayInCycle === 1) {
-            mMain.innerText = "البطاقة مفعلة الآن!";
-            mMain.style.color = "var(--primary)";
-            mSub.innerText = "بإمكانك التوجه لمحطة الوقود اليوم.";
-            timerTitle.innerText = "ينتهي يوم التفعيل خلال:";
-            const endOfDay = new Date(today);
-            endOfDay.setHours(23, 59, 59, 999);
-            runCountdown(endOfDay);
-        } else {
-            mMain.innerText = `متبقي ${daysUntilNext} أيام`;
-            mMain.style.color = "var(--accent)";
-            mSub.innerText = `موعد التفعيل القادم: ${nextDate.toLocaleDateString('ar-IQ', {day:'numeric', month:'long'})}`;
-            timerTitle.innerText = "الوقت المتبقي للتفعيل الجديد:";
-            runCountdown(nextDate);
-        }
-    }
-
-    function runCountdown(target) {
-        const now = new Date().getTime();
-        const dist = target.getTime() - now;
-        if (dist < 0) { document.getElementById("countdown").innerHTML = "00:00:00"; return; }
-
-        const d = Math.floor(dist / (1000 * 60 * 60 * 24));
-        const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((dist % (1000 * 60)) / 1000);
+        const status = document.getElementById('status-text');
+        const subStatus = document.getElementById('sub-status');
         
-        let txt = d > 0 ? d + " يوم و " : "";
-        txt += String(h).padStart(2, '0') + ":" + String(m).padStart(2, '0') + ":" + String(s).padStart(2, '0');
-        document.getElementById("countdown").innerHTML = txt;
-    }
-
-    function logFueling() {
-        let history = JSON.parse(localStorage.getItem('fuelHistory') || "[]");
-        const now = new Date();
-        const entry = now.toLocaleDateString('ar-IQ') + " - " + now.toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'});
-        history.unshift(entry);
-        localStorage.setItem('fuelHistory', JSON.stringify(history.slice(0, 10)));
-        loadLogs();
-        updateApp();
-    }
-
-    function loadLogs() {
-        const history = JSON.parse(localStorage.getItem('fuelHistory') || "[]");
-        const container = document.getElementById('log-list');
-        container.innerHTML = history.length === 0 ? '<div style="color:#ccc; text-align:center; padding:10px;">لا توجد سجلات</div>' : 
-            history.map(item => `<div class="history-item"><span>تعبئة وقود</span><span>${item}</span></div>`).join('');
-    }
-
-    function clearHistory() {
-        if (confirm("هل تريد مسح سجل العمليات؟")) {
-            localStorage.removeItem('fuelHistory');
-            loadLogs();
-            updateApp();
+        if (currentDay === 1) {
+            status.innerText = "البطاقة مفعلة!"; status.style.color = "var(--primary)";
+            subStatus.innerText = "بإمكانك استلام حصتك اليوم.";
+            const end = new Date(today); end.setHours(23,59,59); updateTimer(end);
+        } else {
+            status.innerText = `متبقي ${wait} أيام`; status.style.color = "var(--accent)";
+            const next = new Date(today); next.setDate(today.getDate() + wait);
+            subStatus.innerText = `موعدك القادم: ${next.toLocaleDateString('ar-IQ', {day:'numeric', month:'long'})}`;
+            updateTimer(next);
         }
     }
 
-    setInterval(updateApp, 1000);
-    window.onload = () => { updateApp(); loadLogs(); };
+    function updateTimer(target) {
+        const remain = target - new Date();
+        if (remain < 0) { document.getElementById("countdown").innerText = "00:00:00"; return; }
+        const d = Math.floor(remain / 86400000);
+        const h = Math.floor((remain % 86400000) / 3600000);
+        const m = Math.floor((remain % 3600000) / 60000);
+        const s = Math.floor((remain % 60000) / 1000);
+        document.getElementById("countdown").innerText = (d > 0 ? d + " يوم و " : "") + 
+            `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    function logAction() {
+        let logs = JSON.parse(localStorage.getItem('fuelLogs') || "[]");
+        const entry = new Date().toLocaleDateString('ar-IQ') + " | " + new Date().toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'});
+        logs.unshift(entry);
+        localStorage.setItem('fuelLogs', JSON.stringify(logs.slice(0, 5)));
+        renderLogs(); refresh();
+    }
+
+    function renderLogs() {
+        const logs = JSON.parse(localStorage.getItem('fuelLogs') || "[]");
+        document.getElementById('history-content').innerHTML = logs.length ? 
+            logs.map(l => `<div class="history-item"><span>تعبئة حصة</span><span>${l}</span></div>`).join('') : 
+            `<div style="text-align:center; color:#ccc; font-size:0.7rem; padding-top:10px;">لا توجد سجلات حالياً</div>`;
+    }
+
+    function clearLogs() { if(confirm("هل تريد مسح سجل العمليات؟")) { localStorage.removeItem('fuelLogs'); renderLogs(); refresh(); } }
+
+    setInterval(refresh, 1000);
+    window.onload = () => { renderLogs(); refresh(); };
 </script>
 </body>
 </html>
