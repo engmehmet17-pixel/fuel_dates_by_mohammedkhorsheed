@@ -2,8 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#2c3e50">
+    <meta name="description" content="تطبيق لتنظيم ومتابعة مواعيد تزويد الوقود في كركوك">
     <title>تطبيق الوقود - م. محمد سهران</title>
     
     <link rel="manifest" href="manifest.json?v=2.0">
@@ -12,39 +13,47 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="مواعيد الوقود">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4814/4814489.png">
+    
+    <link rel="apple-touch-icon" href="https://i.ibb.co/vz1f0b0/fuel-app-icon.png">
 
     <style>
         :root { --primary: #2ecc71; --danger: #e74c3c; --accent: #3498db; --dark: #2c3e50; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; padding: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none; /* لمنع تحديد النصوص ليعطي شعور التطبيق */
+        }
         body { background-color: var(--dark); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .app-container { background: #fff; width: 100%; max-width: 400px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
+        .app-container { background: #fff; width: 100%; max-width: 450px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
         
-        .header { background: var(--dark); color: white; padding: 8px 5px; text-align: center; border-bottom: 2px solid var(--accent); flex-shrink: 0; }
-        .header h1 { font-size: 0.9rem; }
-        .header .dev-info { font-size: 0.6rem; opacity: 0.8; }
-        .header .current-date { color: var(--accent); font-weight: bold; font-size: 0.75rem; }
+        .header { background: var(--dark); color: white; padding: 12px 5px; text-align: center; border-bottom: 2px solid var(--accent); flex-shrink: 0; }
+        .header h1 { font-size: 1rem; margin-bottom: 2px; }
+        .header .dev-info { font-size: 0.65rem; opacity: 0.8; letter-spacing: 0.5px; }
+        .header .current-date { color: var(--accent); font-weight: bold; font-size: 0.8rem; margin-top: 4px; }
 
-        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 10px 5px; overflow: hidden; }
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 20px 10px; }
         
-        .status-ring { width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 6px solid #eee; position: relative; }
-        .status-ring.active { border-color: var(--primary); }
-        .status-ring.locked { border-color: #bdc3c7; }
-        .fuel-icon { font-size: 3rem; }
+        .status-ring { width: 130px; height: 130px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 8px solid #eee; position: relative; transition: 0.3s; }
+        .status-ring.active { border-color: var(--primary); box-shadow: 0 0 15px rgba(46, 204, 113, 0.2); }
+        .status-ring.locked { border-color: #bdc3c7; filter: grayscale(0.5); }
+        .fuel-icon { font-size: 3.5rem; }
         
-        .day-badge { position: absolute; top: -12px; background: var(--accent); color: white; padding: 2px 10px; border-radius: 15px; font-size: 0.7rem; font-weight: bold; }
-        .remain-label { font-size: 0.95rem; font-weight: bold; color: var(--accent); }
-        .next-call { font-size: 0.75rem; color: #555; background: #f8f9fa; padding: 4px 12px; border-radius: 5px; border: 1px solid #eee; }
+        .day-badge { position: absolute; top: -15px; background: var(--accent); color: white; padding: 4px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .remain-label { font-size: 1.1rem; font-weight: bold; color: var(--dark); }
+        .next-call { font-size: 0.8rem; color: #666; background: #f1f3f5; padding: 6px 15px; border-radius: 8px; border: 1px solid #e9ecef; }
 
-        .btn-fuel { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 80%; transition: 0.2s; box-shadow: 0 3px 8px rgba(46, 204, 113, 0.3); }
-        .btn-fuel:disabled { background: #bdc3c7; box-shadow: none; cursor: not-allowed; }
+        .btn-fuel { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 30px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 85%; transition: 0.3s; box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3); }
+        .btn-fuel:active { transform: scale(0.98); }
+        .btn-fuel:disabled { background: #bdc3c7; box-shadow: none; cursor: not-allowed; opacity: 0.7; }
         
-        .btn-clear { background: none; border: none; color: var(--danger); font-size: 0.75rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .btn-clear { background: none; border: none; color: var(--danger); font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-top: 10px; padding: 5px; }
 
-        .history-panel { background: #fcfcfc; border-top: 1px solid #eee; padding: 5px 15px; height: 100px; flex-shrink: 0; }
-        .history-title { font-size: 0.7rem; font-weight: bold; color: var(--dark); border-right: 3px solid var(--accent); padding-right: 8px; margin-bottom: 3px; }
-        .log-container { height: 75px; overflow-y: auto; font-size: 0.65rem; }
-        .log-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #f9f9f9; }
+        .history-panel { background: #fcfcfc; border-top: 1px solid #eee; padding: 10px 15px; height: 120px; flex-shrink: 0; }
+        .history-title { font-size: 0.75rem; font-weight: bold; color: var(--dark); border-right: 4px solid var(--accent); padding-right: 10px; margin-bottom: 5px; }
+        .log-container { height: 85px; overflow-y: auto; font-size: 0.7rem; }
+        .log-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f1f1f1; }
     </style>
 </head>
 <body>
@@ -68,30 +77,35 @@
     </div>
 
     <div class="history-panel">
-        <div class="history-title">سجل التعبئة:</div>
+        <div class="history-title">سجل التعبئة الأخير:</div>
         <div class="log-container" id="log-list"></div>
     </div>
 </div>
 
 <script>
-    // تسجيل عامل الخدمة Service Worker
+    // تسجيل عامل الخدمة
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('Service Worker failed', err));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
         });
     }
 
-    const START = new Date(2026, 2, 31); 
+    const START = new Date(2026, 2, 31); // 31 آذار 2026
     const CYCLE = 5;
 
     function update() {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        document.getElementById('date-display').innerText = now.toLocaleDateString('ar-IQ', { weekday: 'long', day: 'numeric', month: 'long' });
+        
+        // عرض التاريخ باللغة العربية
+        const options = { weekday: 'long', day: 'numeric', month: 'long' };
+        document.getElementById('date-display').innerText = now.toLocaleDateString('ar-IQ', options);
 
         const diff = Math.floor((today - START) / 86400000);
         const dayInCycle = ((diff % CYCLE) + CYCLE) % CYCLE + 1;
-        const daysWait = (dayInCycle === 1) ? 0 : (CYCLE - dayInCycle + 1);
+        
+        // حساب الأيام المتبقية للدورة القادمة
+        let daysWait = (dayInCycle === 1) ? 0 : (CYCLE - dayInCycle + 1);
 
         document.getElementById('day-txt').innerText = `اليوم ${dayInCycle} من ${CYCLE}`;
         
@@ -106,18 +120,26 @@
         if (done) {
             ring.className = "status-ring locked";
             btn.disabled = true;
-            btn.innerText = "تم تسجيل التعبئة";
-            txt.innerText = "عملية مكتملة";
-        } else {
+            btn.innerText = "تم تسجيل التعبئة مسبقاً";
+            txt.innerText = "عملية مكتملة لهذه الدورة";
+            txt.style.color = "#7f8c8d";
+        } else if (dayInCycle === 1) {
             ring.className = "status-ring active";
             btn.disabled = false;
-            btn.innerText = "تم التعبئة ✅";
-            txt.innerText = "التعبئة متاحة الآن";
+            btn.innerText = "تأكيد التعبئة الآن ✅";
+            txt.innerText = "التعبئة متاحة اليوم";
+            txt.style.color = "var(--primary)";
+        } else {
+            ring.className = "status-ring locked";
+            btn.disabled = true;
+            btn.innerText = "التعبئة غير متاحة";
+            txt.innerText = `بانتظار دورك.. باقي ${daysWait} أيام`;
+            txt.style.color = "var(--danger)";
         }
 
         const nxt = new Date(today); 
         nxt.setDate(today.getDate() + daysWait);
-        document.getElementById('next-date').innerText = `موعد التفعيل القادم: ${nxt.toLocaleDateString('ar-IQ', {day:'numeric', month:'long'})}`;
+        document.getElementById('next-date').innerText = `موعدك القادم: ${nxt.toLocaleDateString('ar-IQ', {day:'numeric', month:'long'})}`;
 
         render();
     }
@@ -140,13 +162,14 @@
 
     function render() {
         const logs = JSON.parse(localStorage.getItem('Fuel_V5_Final') || "[]");
-        document.getElementById('log-list').innerHTML = logs.length ? 
-            logs.map(l => `<div class="log-row"><span>تعبئة وقود</span><span>${l.d} | ${l.t}</span></div>`).join('') : 
-            '<div style="text-align:center;padding-top:10px;color:#ccc">لا توجد سجلات</div>';
+        const logHtml = logs.length ? 
+            logs.map(l => `<div class="log-row"><span>⛽ عملية تعبئة</span><span>${l.d} | ${l.t}</span></div>`).join('') : 
+            '<div style="text-align:center;padding-top:20px;color:#ccc">لا توجد عمليات مسجلة</div>';
+        document.getElementById('log-list').innerHTML = logHtml;
     }
 
     function resetLog() {
-        if(confirm("سيتم مسح السجل وتفعيل الزر مجدداً. استمرار؟")) {
+        if(confirm("هل أنت متأكد من مسح السجل؟ سيؤدي ذلك لإعادة تفعيل زر التعبئة.")) {
             localStorage.removeItem('Fuel_V5_Final');
             update();
         }
