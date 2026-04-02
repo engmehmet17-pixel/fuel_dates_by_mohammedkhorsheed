@@ -1,18 +1,29 @@
 {
   "name": "مواعيد تزويد الوقود",
   "short_name": "مواعيد الوقود",
-  "description": "تطبيق لمتابعة وتنظيم مواعيد التزود بالوقود",
+  "description": "تطبيق لتنظيم ومتابعة مواعيد التزود بالوقود في كركوك",
   "start_url": "index.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#2c3e50",
   "theme_color": "#3498db",
-"icons": [
-  {
-    "src": "https://i.ibb.co/vz1f0b0/fuel-app-icon.png",
-    "sizes": "512x512",
-    "type": "image/png",
-    "purpose": "any maskable"
-  }
-]  
+  "icons": [
+    {
+      "src": "https://i.ibb.co/vz1f0b0/fuel-app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.ibb.co/vz1f0b0/fuel-app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://i.ibb.co/vz1f0b0/fuel-app-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
 }
