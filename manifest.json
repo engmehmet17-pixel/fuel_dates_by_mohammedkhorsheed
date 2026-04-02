@@ -1,15 +1,17 @@
 {
-  "name": "مواعيد الوقود - كركوك",
-  "short_name": "الوقود",
-  "start_url": ".",
+  "name": "مواعيد تزويد الوقود",
+  "short_name": "مواعيد الوقود",
+  "description": "تطبيق لمتابعة مواعيد تزويد الوقود في كركوك",
+  "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#f0f3f5",
+  "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3417/3417382.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/4814/4814489.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
