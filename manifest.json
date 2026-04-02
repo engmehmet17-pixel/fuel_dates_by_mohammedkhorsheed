@@ -1,7 +1,8 @@
 {
   "name": "مواعيد تزويد الوقود",
   "short_name": "مواعيد الوقود",
-  "start_url": "./index.html",
+  "start_url": "/fuel_dates_by_mohammedkhorsheed/index.html",
+  "scope": "/fuel_dates_by_mohammedkhorsheed/",
   "display": "standalone",
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
@@ -10,13 +11,7 @@
       "src": "https://i.ibb.co/vz1f0b0/fuel-app-icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "https://i.ibb.co/vz1f0b0/fuel-app-icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }
