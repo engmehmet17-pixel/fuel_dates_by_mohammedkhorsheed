@@ -3,72 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مواعيد الوقود - كركوك</title>
+    <title>تطبيق الوقود - كركوك</title>
     <style>
-        :root { --primary: #2ecc71; --accent: #3498db; --dark: #2c3e50; }
+        :root { --primary: #2ecc71; --danger: #e74c3c; --accent: #3498db; --dark: #2c3e50; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        
         body { background-color: var(--dark); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        .app-container {
-            background: #fff; width: 100%; max-width: 400px; margin: 0 auto;
-            height: 100%; display: flex; flex-direction: column;
+        .app-container { background: #fff; width: 100%; max-width: 400px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
+
+        /* شريط العنوان - بدون تغيير */
+        .header { background: var(--dark); color: white; padding: 10px 5px; text-align: center; border-bottom: 3px solid var(--accent); flex-shrink: 0; }
+        .header h1 { font-size: 0.95rem; margin-bottom: 2px; }
+        .header .dev-info { font-size: 0.65rem; opacity: 0.8; }
+        .header .current-date { color: var(--accent); font-weight: bold; font-size: 0.8rem; margin-top: 3px; }
+
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 5px 10px; }
+
+        /* الدائرة التفاعلية حول الأيقونة */
+        .status-ring {
+            width: 130px; height: 130px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 6px solid #eee; position: relative; transition: 0.4s;
         }
+        .status-ring.active { border-color: var(--primary); }
+        .status-ring.locked { border-color: var(--danger); }
+        .icon-fuel { width: 70px; }
+        .day-label { position: absolute; top: -10px; background: var(--accent); color: white; padding: 2px 10px; border-radius: 12px; font-size: 0.65rem; font-weight: bold; }
 
-        /* هيدر مضغوط */
-        .header {
-            background: var(--dark); color: white; padding: 8px 5px;
-            text-align: center; border-bottom: 3px solid var(--accent); flex-shrink: 0;
-        }
-        .header h1 { font-size: 0.9rem; margin-bottom: 2px; }
-        .header .dev-info { font-size: 0.6rem; opacity: 0.8; line-height: 1.2; }
-        .header .current-date { color: var(--accent); font-weight: bold; font-size: 0.75rem; margin-top: 2px; }
+        .remaining-txt { font-size: 0.8rem; font-weight: bold; color: var(--accent); }
 
-        .main-content {
-            flex-grow: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: space-between; padding: 10px 15px;
-        }
+        .timer-card { background: #f9f9f9; width: 90%; padding: 5px; border-radius: 10px; border: 1px solid #eee; text-align: center; }
+        .timer-card small { font-size: 0.55rem; color: #7f8c8d; }
+        .timer-val { font-family: monospace; font-size: 1rem; font-weight: bold; color: var(--dark); }
 
-        .day-badge {
-            background: #e8f4fd; color: var(--accent); padding: 3px 12px;
-            border-radius: 15px; font-weight: bold; font-size: 0.75rem; border: 1px solid var(--accent);
-        }
+        .next-info { font-size: 0.7rem; color: #555; }
 
-        .icon-box { font-size: 2.5rem; margin: 5px 0; }
-
-        .status-msg { font-size: 1rem; font-weight: bold; color: var(--dark); }
-
-        /* تصغير حاوية العداد */
-        .timer-card {
-            background: #f8f9fa; width: 95%; padding: 6px;
-            border-radius: 10px; border: 1px solid #eee; text-align: center;
-        }
-        .timer-card small { font-size: 0.6rem; color: #7f8c8d; }
-        .timer-val { font-family: monospace; font-size: 0.95rem; font-weight: bold; color: var(--dark); }
-
-        .next-date-info { font-size: 0.75rem; color: #555; font-weight: 500; }
-
-        /* تصغير الزر الرئيسي */
+        /* الزر المختصر */
         .btn-fuel {
             background: var(--primary); color: white; border: none;
-            padding: 8px 30px; border-radius: 20px;
-            font-size: 0.85rem; font-weight: bold; cursor: pointer;
-            width: 80%; box-shadow: 0 3px 8px rgba(46, 204, 113, 0.2);
+            padding: 6px 25px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;
+            cursor: pointer; width: 60%; box-shadow: 0 3px 6px rgba(46, 204, 113, 0.2);
         }
         .btn-fuel:disabled { background: #bdc3c7; box-shadow: none; }
+        .btn-clear { color: var(--danger); font-size: 0.6rem; background: none; border: none; margin-top: 2px; cursor: pointer; }
 
-        .btn-clear { color: #e74c3c; font-size: 0.65rem; background: none; border: none; padding: 2px; }
-
-        /* منطقة السجل */
-        .history-section {
-            background: #fafafa; border-top: 1px solid #eee;
-            padding: 8px 15px; height: 85px; flex-shrink: 0;
-        }
-        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
-        .history-header h2 { font-size: 0.7rem; border-right: 3px solid var(--accent); padding-right: 6px; }
-        
-        .log-list { height: 50px; overflow-y: auto; font-size: 0.65rem; }
-        .log-item { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dashed #ddd; }
+        /* سجل العمليات المصغر */
+        .history-box { background: #fcfcfc; border-top: 1px solid #eee; padding: 5px 15px; height: 80px; flex-shrink: 0; }
+        .history-header { font-size: 0.65rem; font-weight: bold; color: var(--dark); border-right: 3px solid var(--accent); padding-right: 5px; margin-bottom: 3px; }
+        .log-list { height: 50px; overflow-y: auto; font-size: 0.55rem; color: #666; }
+        .log-item { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dashed #eee; }
     </style>
 </head>
 <body>
@@ -81,73 +64,74 @@
     </div>
 
     <div class="main-content">
-        <div class="day-badge" id="day-txt">جاري التحميل...</div>
-        
-        <div class="icon-box">⛽</div>
+        <div class="status-ring" id="ring">
+            <span class="day-label" id="day-badge">اليوم .. من ..</span>
+            <img src="https://cdn-icons-png.flaticon.com/512/3414/3414541.png" class="icon-fuel" alt="fuel">
+        </div>
 
-        <div class="status-msg" id="status-main">...</div>
+        <div class="remaining-txt" id="remain-txt">متبقي .. أيام</div>
 
         <div class="timer-card">
-            <small id="timer-label">متبقي على الموعد القادم:</small>
+            <small>متبقي على الموعد القادم:</small>
             <div class="timer-val" id="timer-val">00:00:00</div>
         </div>
 
-        <div class="next-date-info" id="next-date-display">التفعيل القادم: ...</div>
+        <div class="next-info" id="next-date">التفعيل القادم: ...</div>
 
-        <button class="btn-fuel" id="fuel-btn" onclick="saveLog()">✅ سجلت تعبئة اليوم</button>
+        <button class="btn-fuel" id="fuel-btn" onclick="logAction()">تم التعبئة ✅</button>
         <button class="btn-clear" onclick="clearLogs()">🗑️ مسح السجل</button>
     </div>
 
-    <div class="history-section">
-        <div class="history-header">
-            <h2>آخر العمليات</h2>
-        </div>
-        <div class="log-list" id="log-content"></div>
+    <div class="history-box">
+        <div class="history-header">آخر العمليات المسجلة:</div>
+        <div class="log-list" id="log-list"></div>
     </div>
 </div>
 
 <script>
-    const startPoint = new Date(2026, 2, 31); 
-    const cycle = 5;
+    const START = new Date(2026, 2, 31); 
+    const CYCLE = 5;
 
-    function update() {
+    function refresh() {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        
-        // تصحيح عرض التاريخ ليشمل السنة
-        document.getElementById('date-display').innerText = now.toLocaleDateString('ar-IQ', { 
-            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' 
-        });
+        document.getElementById('date-display').innerText = now.toLocaleDateString('ar-IQ', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-        const diff = Math.floor((today - startPoint) / 86400000);
-        let dInCycle = ((diff % cycle) + cycle) % cycle + 1;
-        let waitDays = (dInCycle === 1) ? 0 : (cycle - dInCycle + 1);
+        const diff = Math.floor((today - START) / 86400000);
+        let currentDay = ((diff % CYCLE) + CYCLE) % CYCLE + 1;
+        let wait = (currentDay === 1) ? 0 : (CYCLE - currentDay + 1);
 
-        document.getElementById('day-txt').innerText = `اليوم ${dInCycle} من ${cycle}`;
+        document.getElementById('day-badge').innerText = `اليوم ${currentDay} من ${CYCLE}`;
+        document.getElementById('remain-txt').innerText = `متبقي ${wait} أيام`;
+
+        const logs = JSON.parse(localStorage.getItem('fuel_v3') || "[]");
+        const doneToday = logs.some(l => l.includes(today.toLocaleDateString('ar-IQ')));
         
-        const logs = JSON.parse(localStorage.getItem('fuelLogs_v2') || "[]");
-        const isDone = logs.some(l => l.includes(today.toLocaleDateString('ar-IQ')));
+        const ring = document.getElementById('ring');
         const btn = document.getElementById('fuel-btn');
-        btn.disabled = isDone;
-        btn.innerText = isDone ? "تم التسجيل اليوم ✅" : "✅ سجلت تعبئة اليوم";
 
-        const status = document.getElementById('status-main');
-        const nextInfo = document.getElementById('next-date-display');
-        
-        const nextDate = new Date(today);
-        nextDate.setDate(today.getDate() + waitDays);
-        nextInfo.innerText = `التفعيل القادم: ${nextDate.toLocaleDateString('ar-IQ', {day:'numeric', month:'long'})}`;
-
-        if (dInCycle === 1) {
-            status.innerText = "البطاقة مفعلة الآن!"; status.style.color = "#2ecc71";
-            const end = new Date(today); end.setHours(23,59,59); runTimer(end);
+        // منطق تلوين الدائرة التفاعلية
+        if (currentDay === 1) {
+            if (doneToday) {
+                ring.className = "status-ring locked";
+                btn.disabled = true;
+            } else {
+                ring.className = "status-ring active";
+                btn.disabled = false;
+            }
+            const end = new Date(today); end.setHours(23,59,59); updateTimer(end);
         } else {
-            status.innerText = `متبقي ${waitDays} أيام`; status.style.color = "#3498db";
-            runTimer(nextDate);
+            ring.className = "status-ring";
+            btn.disabled = true;
+            const next = new Date(today); next.setDate(today.getDate() + wait); updateTimer(next);
         }
+
+        const nextD = new Date(today); nextD.setDate(today.getDate() + wait);
+        document.getElementById('next-date').innerText = `التفعيل القادم: ${nextD.toLocaleDateString('ar-IQ', {day:'numeric', month:'long'})}`;
+        renderLogs();
     }
 
-    function runTimer(target) {
+    function updateTimer(target) {
         const dist = target - new Date();
         if (dist < 0) { document.getElementById("timer-val").innerText = "00:00:00"; return; }
         const d = Math.floor(dist / 86400000);
@@ -158,23 +142,24 @@
             `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
 
-    function saveLog() {
-        let logs = JSON.parse(localStorage.getItem('fuelLogs_v2') || "[]");
-        logs.unshift(new Date().toLocaleDateString('ar-IQ') + " - " + new Date().toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'}));
-        localStorage.setItem('fuelLogs_v2', JSON.stringify(logs.slice(0, 3)));
-        showLogs(); update();
+    function logAction() {
+        let logs = JSON.parse(localStorage.getItem('fuel_v3') || "[]");
+        logs.unshift(new Date().toLocaleDateString('ar-IQ') + " | " + new Date().toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'}));
+        localStorage.setItem('fuel_v3', JSON.stringify(logs.slice(0, 5)));
+        refresh();
     }
 
-    function showLogs() {
-        const logs = JSON.parse(localStorage.getItem('fuelLogs_v2') || "[]");
-        document.getElementById('log-content').innerHTML = logs.length ? 
-            logs.map(l => `<div class="log-item"><span>تعبئة</span><span>${l}</span></div>`).join('') : "لا يوجد سجلات";
+    function renderLogs() {
+        const logs = JSON.parse(localStorage.getItem('fuel_v3') || "[]");
+        document.getElementById('log-list').innerHTML = logs.length ? 
+            logs.map(l => `<div class="log-item"><span>تعبئة وقود</span><span>${l}</span></div>`).join('') : 
+            '<div style="text-align:center; padding-top:10px;">لا توجد سجلات</div>';
     }
 
-    function clearLogs() { if(confirm("مسح؟")) { localStorage.removeItem('fuelLogs_v2'); showLogs(); update(); } }
+    function clearLogs() { if(confirm("مسح؟")) { localStorage.removeItem('fuel_v3'); refresh(); } }
 
-    setInterval(update, 1000);
-    window.onload = () => { showLogs(); update(); };
+    setInterval(refresh, 1000);
+    window.onload = refresh;
 </script>
 </body>
 </html>
