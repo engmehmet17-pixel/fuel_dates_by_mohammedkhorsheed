@@ -6,9 +6,9 @@
     <meta name="theme-color" content="#2c3e50">
     <meta name="description" content="تطبيق لتنظيم ومتابعة مواعيد تزويد الوقود في كركوك">
     <title>تطبيق الوقود - م. محمد سهران</title>
-    
-    <link rel="manifest" href="manifest.json?v=2.0">
 
+    <link rel="manifest" href="manifest.json?v=2.0">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="مواعيد الوقود">
@@ -100,7 +100,7 @@
     // --- 1. إعدادات الـ Service Worker ---
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
         });
     }
 
