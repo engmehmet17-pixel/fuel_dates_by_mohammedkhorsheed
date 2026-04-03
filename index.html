@@ -7,12 +7,12 @@
     <meta name="description" content="تطبيق لتنظيم ومتابعة مواعيد تزويد الوقود في كركوك">
     <title>تطبيق الوقود - م. محمد سهران</title>
 
-    <link rel="manifest" href="https://engmehmet17-pixel.github.io/fuel_dates_by_mohammedkhorsheed/manifest.json">
+    <link rel="manifest" href="manifest.json">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="مواعيد الوقود">
-    <link rel="apple-touch-icon" href="https://fonts.gstatic.com/s/e/notoemoji/latest/26fd/512.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4814/4814489.png">
 
     <style>
         :root { --primary: #2ecc71; --danger: #e74c3c; --accent: #3498db; --dark: #2c3e50; }
@@ -25,19 +25,15 @@
         body { background-color: var(--dark); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .app-container { background: #fff; width: 100%; max-width: 450px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; }
         
-        /* بانر التثبيت العلوي (يظهر بشكل مؤقت) */
         #install-banner {
-            display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+            display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: var(--dark); color: white; padding: 12px 20px; border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.4); z-index: 1000; width: 90%;
             justify-content: space-between; align-items: center; border: 1px solid var(--accent);
-            animation: slideDown 0.5s ease-out;
         }
-        @keyframes slideDown { from { top: -100px; } to { top: 10px; } }
-
         #install-banner button {
             background: var(--accent); color: white; border: none; padding: 8px 15px;
-            border-radius: 8px; cursor: pointer; font-weight: bold;
+            border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;
         }
 
         .header { background: var(--dark); color: white; padding: 15px 5px; text-align: center; border-bottom: 2px solid var(--accent); flex-shrink: 0; }
@@ -51,16 +47,20 @@
         .status-ring.active { border-color: var(--primary); box-shadow: 0 0 20px rgba(46, 204, 113, 0.2); }
         .status-ring.locked { border-color: #bdc3c7; }
         
-        /* الإيقونة المطلوبة ⛽ */
-        .fuel-emoji-display { font-size: 4.5rem; }
+        .fuel-icon-img { width: 80px; height: 80px; object-fit: contain; }
         
         .day-badge { position: absolute; top: -15px; background: var(--accent); color: white; padding: 4px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
         .remain-label { font-size: 1.2rem; font-weight: bold; color: var(--dark); text-align: center; }
+        .next-call { font-size: 0.85rem; color: #555; background: #f8f9fa; padding: 8px 20px; border-radius: 10px; border: 1px solid #eee; }
 
         .btn-fuel { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 35px; font-size: 1.2rem; font-weight: bold; cursor: pointer; width: 85%; transition: 0.3s; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3); }
-        .btn-fuel:disabled { background: #bdc3c7; opacity: 0.7; }
+        .btn-fuel:active { transform: scale(0.95); }
+        .btn-fuel:disabled { background: #bdc3c7; box-shadow: none; opacity: 0.7; }
         
+        .btn-clear { background: none; border: none; color: var(--danger); font-size: 0.85rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+
         .history-panel { background: #fcfcfc; border-top: 1px solid #eee; padding: 10px 20px; height: 130px; flex-shrink: 0; }
+        .history-title { font-size: 0.8rem; font-weight: bold; color: var(--dark); border-right: 4px solid var(--accent); padding-right: 10px; margin-bottom: 8px; }
         .log-container { height: 85px; overflow-y: auto; font-size: 0.75rem; }
         .log-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f1f1; }
     </style>
@@ -68,8 +68,8 @@
 <body>
 
 <div id="install-banner">
-    <span>ثبت التطبيق الآن 📱</span>
-    <button onclick="installApp()">تثبيت</button>
+    <span>ثبت التطبيق على هاتفك 📱</span>
+    <button onclick="installApp()">تثبيت الآن</button>
 </div>
 
 <div class="app-container">
@@ -82,55 +82,46 @@
     <div class="main-content">
         <div class="status-ring" id="ring">
             <span class="day-badge" id="day-txt">..</span>
-            <span class="fuel-emoji-display">⛽</span>
+            <img src="https://cdn-icons-png.flaticon.com/512/4814/4814489.png" class="fuel-icon-img" alt="Fuel Icon">
         </div>
         <div class="remain-label" id="remain-txt">جاري الحساب...</div>
+        <div class="next-call" id="next-date">موعدك القادم: ...</div>
         <button class="btn-fuel" id="fuel-btn" onclick="saveAction()">تأكيد التعبئة الآن ✅</button>
-        <button style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;" onclick="resetLog()">مسح السجل 🗑️</button>
+        <button class="btn-clear" onclick="resetLog()"><span>مسح السجل</span> 🗑️</button>
     </div>
 
     <div class="history-panel">
-        <strong>آخر العمليات المسجلة:</strong>
+        <div class="history-title">آخر العمليات المسجلة:</div>
         <div class="log-container" id="log-list"></div>
     </div>
 </div>
 
 <script>
-    let deferredPrompt;
-
-    // تسجيل الـ Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('https://engmehmet17-pixel.github.io/fuel_dates_by_mohammedkhorsheed/sw.js');
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
         });
     }
 
-    // القنص السريع لحدث التثبيت
+    let deferredPrompt;
+    const installBanner = document.getElementById('install-banner');
+
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        document.getElementById('install-banner').style.display = 'flex';
+        installBanner.style.display = 'flex';
     });
-
-    // تحفيز التثبيت عند أول لمسة للشاشة (أسرع طريقة ممكنة)
-    window.addEventListener('click', () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(() => {
-                deferredPrompt = null;
-                document.getElementById('install-banner').style.display = 'none';
-            });
-        }
-    }, { once: true });
 
     function installApp() {
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            document.getElementById('install-banner').style.display = 'none';
+            deferredPrompt.userChoice.then((choice) => {
+                installBanner.style.display = 'none';
+                deferredPrompt = null;
+            });
         }
     }
 
-    // منطق الحسابات
     const START = new Date(2026, 2, 31); 
     const CYCLE = 5;
 
@@ -141,12 +132,13 @@
 
         const diff = Math.floor((today - START) / 86400000);
         const dayInCycle = ((diff % CYCLE) + CYCLE) % CYCLE + 1;
+        let daysWait = (dayInCycle === 1) ? 0 : (CYCLE - dayInCycle + 1);
 
         document.getElementById('day-txt').innerText = `اليوم ${dayInCycle} من ${CYCLE}`;
         
-        const logs = JSON.parse(localStorage.getItem('Fuel_Final_Log') || "[]");
-        const cycleId = diff - (dayInCycle - 1);
-        const done = logs.some(l => l.cid === cycleId);
+        const logs = JSON.parse(localStorage.getItem('Fuel_V5_Final') || "[]");
+        const currentCycleStart = diff - (dayInCycle - 1);
+        const done = logs.some(l => l.cid === currentCycleStart);
 
         const btn = document.getElementById('fuel-btn');
         const ring = document.getElementById('ring');
@@ -155,14 +147,21 @@
         if (done) {
             ring.className = "status-ring locked";
             btn.disabled = true;
-            btn.innerText = "تم التسجيل مسبقاً";
-            txt.innerText = "عملية مكتملة";
+            btn.innerText = "تم تسجيل التعبئة";
+            txt.innerText = "عملية مكتملة لهذه الدورة";
+            txt.style.color = "#7f8c8d";
         } else {
             ring.className = "status-ring active";
             btn.disabled = false;
             btn.innerText = "تأكيد التعبئة الآن ✅";
             txt.innerText = "التعبئة متاحة حالياً";
+            txt.style.color = "var(--primary)";
         }
+
+        const nxt = new Date(today); 
+        nxt.setDate(today.getDate() + daysWait);
+        document.getElementById('next-date').innerText = `موعدك الرسمي القادم: ${nxt.toLocaleDateString('ar-IQ', {day:'numeric', month:'long'})}`;
+
         render();
     }
 
@@ -172,23 +171,29 @@
         const diff = Math.floor((today - START) / 86400000);
         const dayInCycle = ((diff % CYCLE) + CYCLE) % CYCLE + 1;
 
-        let logs = JSON.parse(localStorage.getItem('Fuel_Final_Log') || "[]");
+        let logs = JSON.parse(localStorage.getItem('Fuel_V5_Final') || "[]");
         logs.unshift({
             d: now.toLocaleDateString('ar-IQ'),
             t: now.toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'}),
             cid: diff - (dayInCycle - 1)
         });
-        localStorage.setItem('Fuel_Final_Log', JSON.stringify(logs.slice(0, 5)));
+        localStorage.setItem('Fuel_V5_Final', JSON.stringify(logs.slice(0, 10)));
         update();
     }
 
     function render() {
-        const logs = JSON.parse(localStorage.getItem('Fuel_Final_Log') || "[]");
-        document.getElementById('log-list').innerHTML = logs.map(l => 
-            `<div class="log-row"><span>⛽ تعبئة</span><span>${l.d} | ${l.t}</span></div>`).join('');
+        const logs = JSON.parse(localStorage.getItem('Fuel_V5_Final') || "[]");
+        document.getElementById('log-list').innerHTML = logs.length ? 
+            logs.map(l => `<div class="log-row"><span>⛽ عملية تعبئة</span><span>${l.d} | ${l.t}</span></div>`).join('') : 
+            '<div style="text-align:center;padding-top:20px;color:#ccc">لا توجد عمليات مسجلة</div>';
     }
 
-    function resetLog() { if(confirm("مسح السجل؟")) { localStorage.removeItem('Fuel_Final_Log'); update(); } }
+    function resetLog() {
+        if(confirm("هل تريد مسح السجل وإعادة تفعيل الزر؟")) {
+            localStorage.removeItem('Fuel_V5_Final');
+            update();
+        }
+    }
 
     window.onload = update;
 </script>
