@@ -4,122 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#2c3e50">
-    <meta name="description" content="تطبيق لتنظيم ومتابعة مواعيد تزويد الوقود في كركوك">
     <title>تطبيق الوقود - م. محمد سهران</title>
 
     <link rel="manifest" href="manifest.json">
     
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="مواعيد الوقود">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4814/4814489.png">
-
     <style>
         :root { --primary: #2ecc71; --danger: #e74c3c; --accent: #3498db; --dark: #2c3e50; }
-        * { 
-            box-sizing: border-box; margin: 0; padding: 0; 
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { background-color: var(--dark); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .app-container { background: #fff; width: 100%; max-width: 450px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; }
         
-        #install-banner {
-            display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--dark); color: white; padding: 12px 20px; border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4); z-index: 1000; width: 90%;
-            justify-content: space-between; align-items: center; border: 1px solid var(--accent);
-        }
-        #install-banner button {
-            background: var(--accent); color: white; border: none; padding: 8px 15px;
-            border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;
-        }
-
-        .header { background: var(--dark); color: white; padding: 15px 5px; text-align: center; border-bottom: 2px solid var(--accent); flex-shrink: 0; }
+        .header { background: var(--dark); color: white; padding: 15px 5px; text-align: center; border-bottom: 2px solid var(--accent); }
         .header h1 { font-size: 1.1rem; }
-        .header .dev-info { font-size: 0.65rem; opacity: 0.7; margin-top: 3px; }
-        .header .current-date { color: var(--accent); font-weight: bold; font-size: 0.85rem; margin-top: 5px; }
+        .current-date { color: var(--accent); font-weight: bold; font-size: 0.85rem; margin-top: 5px; }
 
         .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 20px 10px; }
         
+        /* الدائرة الملونة وبداخلها الإيموجي */
         .status-ring { width: 140px; height: 140px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 8px solid #eee; position: relative; transition: 0.3s; }
         .status-ring.active { border-color: var(--primary); box-shadow: 0 0 20px rgba(46, 204, 113, 0.2); }
         .status-ring.locked { border-color: #bdc3c7; }
         
-        .fuel-icon-img { width: 80px; height: 80px; object-fit: contain; }
+        .fuel-emoji-inside { font-size: 4.5rem; line-height: 1; }
         
         .day-badge { position: absolute; top: -15px; background: var(--accent); color: white; padding: 4px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
         .remain-label { font-size: 1.2rem; font-weight: bold; color: var(--dark); text-align: center; }
-        .next-call { font-size: 0.85rem; color: #555; background: #f8f9fa; padding: 8px 20px; border-radius: 10px; border: 1px solid #eee; }
 
-        .btn-fuel { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 35px; font-size: 1.2rem; font-weight: bold; cursor: pointer; width: 85%; transition: 0.3s; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3); }
-        .btn-fuel:active { transform: scale(0.95); }
-        .btn-fuel:disabled { background: #bdc3c7; box-shadow: none; opacity: 0.7; }
+        .btn-fuel { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 35px; font-size: 1.2rem; font-weight: bold; cursor: pointer; width: 85%; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3); }
+        .btn-fuel:disabled { background: #bdc3c7; opacity: 0.7; box-shadow: none; }
         
-        .btn-clear { background: none; border: none; color: var(--danger); font-size: 0.85rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-
-        .history-panel { background: #fcfcfc; border-top: 1px solid #eee; padding: 10px 20px; height: 130px; flex-shrink: 0; }
-        .history-title { font-size: 0.8rem; font-weight: bold; color: var(--dark); border-right: 4px solid var(--accent); padding-right: 10px; margin-bottom: 8px; }
+        .history-panel { background: #fcfcfc; border-top: 1px solid #eee; padding: 10px 20px; height: 130px; }
         .log-container { height: 85px; overflow-y: auto; font-size: 0.75rem; }
         .log-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f1f1; }
     </style>
 </head>
 <body>
 
-<div id="install-banner">
-    <span>ثبت التطبيق على هاتفك 📱</span>
-    <button onclick="installApp()">تثبيت الآن</button>
-</div>
-
 <div class="app-container">
     <div class="header">
         <h1>مواعيد تزويد الوقود - كركوك ⛽</h1>
-        <div class="dev-info">فكرة وتصميم: م. محمد سهران خورشيد | 2026 ©</div>
         <div id="date-display" class="current-date"></div>
     </div>
 
     <div class="main-content">
         <div class="status-ring" id="ring">
             <span class="day-badge" id="day-txt">..</span>
-            <img src="https://cdn-icons-png.flaticon.com/512/4814/4814489.png" class="fuel-icon-img" alt="Fuel Icon">
+            <span class="fuel-emoji-inside">⛽</span>
         </div>
         <div class="remain-label" id="remain-txt">جاري الحساب...</div>
-        <div class="next-call" id="next-date">موعدك القادم: ...</div>
         <button class="btn-fuel" id="fuel-btn" onclick="saveAction()">تأكيد التعبئة الآن ✅</button>
-        <button class="btn-clear" onclick="resetLog()"><span>مسح السجل</span> 🗑️</button>
+        <button style="background:none; border:none; color:var(--danger); margin-top:10px; cursor:pointer;" onclick="resetLog()">مسح السجل 🗑️</button>
     </div>
 
     <div class="history-panel">
-        <div class="history-title">آخر العمليات المسجلة:</div>
+        <strong>آخر العمليات:</strong>
         <div class="log-container" id="log-list"></div>
     </div>
 </div>
 
 <script>
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error', err));
-        });
-    }
-
-    let deferredPrompt;
-    const installBanner = document.getElementById('install-banner');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installBanner.style.display = 'flex';
-    });
-
-    function installApp() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choice) => {
-                installBanner.style.display = 'none';
-                deferredPrompt = null;
-            });
-        }
+        navigator.serviceWorker.register('sw.js');
     }
 
     const START = new Date(2026, 2, 31); 
@@ -132,13 +77,12 @@
 
         const diff = Math.floor((today - START) / 86400000);
         const dayInCycle = ((diff % CYCLE) + CYCLE) % CYCLE + 1;
-        let daysWait = (dayInCycle === 1) ? 0 : (CYCLE - dayInCycle + 1);
-
+        
         document.getElementById('day-txt').innerText = `اليوم ${dayInCycle} من ${CYCLE}`;
         
-        const logs = JSON.parse(localStorage.getItem('Fuel_V5_Final') || "[]");
-        const currentCycleStart = diff - (dayInCycle - 1);
-        const done = logs.some(l => l.cid === currentCycleStart);
+        const logs = JSON.parse(localStorage.getItem('Fuel_Log') || "[]");
+        const currentCycleId = diff - (dayInCycle - 1);
+        const done = logs.some(l => l.cid === currentCycleId);
 
         const btn = document.getElementById('fuel-btn');
         const ring = document.getElementById('ring');
@@ -147,21 +91,14 @@
         if (done) {
             ring.className = "status-ring locked";
             btn.disabled = true;
-            btn.innerText = "تم تسجيل التعبئة";
-            txt.innerText = "عملية مكتملة لهذه الدورة";
-            txt.style.color = "#7f8c8d";
+            btn.innerText = "تم التسجيل";
+            txt.innerText = "عملية مكتملة";
         } else {
             ring.className = "status-ring active";
             btn.disabled = false;
             btn.innerText = "تأكيد التعبئة الآن ✅";
             txt.innerText = "التعبئة متاحة حالياً";
-            txt.style.color = "var(--primary)";
         }
-
-        const nxt = new Date(today); 
-        nxt.setDate(today.getDate() + daysWait);
-        document.getElementById('next-date').innerText = `موعدك الرسمي القادم: ${nxt.toLocaleDateString('ar-IQ', {day:'numeric', month:'long'})}`;
-
         render();
     }
 
@@ -171,29 +108,23 @@
         const diff = Math.floor((today - START) / 86400000);
         const dayInCycle = ((diff % CYCLE) + CYCLE) % CYCLE + 1;
 
-        let logs = JSON.parse(localStorage.getItem('Fuel_V5_Final') || "[]");
+        let logs = JSON.parse(localStorage.getItem('Fuel_Log') || "[]");
         logs.unshift({
             d: now.toLocaleDateString('ar-IQ'),
             t: now.toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'}),
             cid: diff - (dayInCycle - 1)
         });
-        localStorage.setItem('Fuel_V5_Final', JSON.stringify(logs.slice(0, 10)));
+        localStorage.setItem('Fuel_Log', JSON.stringify(logs.slice(0, 5)));
         update();
     }
 
     function render() {
-        const logs = JSON.parse(localStorage.getItem('Fuel_V5_Final') || "[]");
-        document.getElementById('log-list').innerHTML = logs.length ? 
-            logs.map(l => `<div class="log-row"><span>⛽ عملية تعبئة</span><span>${l.d} | ${l.t}</span></div>`).join('') : 
-            '<div style="text-align:center;padding-top:20px;color:#ccc">لا توجد عمليات مسجلة</div>';
+        const logs = JSON.parse(localStorage.getItem('Fuel_Log') || "[]");
+        document.getElementById('log-list').innerHTML = logs.map(l => 
+            `<div class="log-row"><span>⛽ تعبئة</span><span>${l.d} | ${l.t}</span></div>`).join('');
     }
 
-    function resetLog() {
-        if(confirm("هل تريد مسح السجل وإعادة تفعيل الزر؟")) {
-            localStorage.removeItem('Fuel_V5_Final');
-            update();
-        }
-    }
+    function resetLog() { if(confirm("مسح السجل؟")) { localStorage.removeItem('Fuel_Log'); update(); } }
 
     window.onload = update;
 </script>
