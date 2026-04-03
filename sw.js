@@ -1,9 +1,19 @@
-const CACHE_NAME = 'fuel-v4';
+const CACHE_NAME = 'fuel-app-v5';
+const assets = [
+  './',
+  './index.html',
+  './manifest.json',
+  'https://fonts.gstatic.com/s/e/notoemoji/latest/26fd/512.png'
+];
+
 self.addEventListener('install', e => {
     e.waitUntil(
-        caches.open(CACHE_NAME).then(cache => cache.addAll(['./', './index.html', './manifest.json']))
+        caches.open(CACHE_NAME).then(cache => cache.addAll(assets))
     );
 });
+
 self.addEventListener('fetch', e => {
-    e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+    e.respondWith(
+        caches.match(e.request).then(res => res || fetch(e.request))
+    );
 });
