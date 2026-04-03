@@ -1,14 +1,14 @@
 {
   "name": "مواعيد تزويد الوقود",
   "short_name": "مواعيد الوقود",
-  "start_url": "/fuel_dates_by_mohammedkhorsheed/index.html",
-  "scope": "/fuel_dates_by_mohammedkhorsheed/",
+  "description": "تطبيق لمتابعة مواعيد تزويد الوقود في كركوك",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
   "icons": [
     {
-      "src": "https://i.ibb.co/vz1f0b0/fuel-app-icon.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/4814/4814489.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
