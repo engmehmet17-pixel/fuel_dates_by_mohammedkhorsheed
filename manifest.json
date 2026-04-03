@@ -3,22 +3,15 @@
   "short_name": "مواعيد الوقود",
   "description": "تطبيق لتنظيم ومتابعة مواعيد تزويد الوقود في كركوك",
   "start_url": "index.html",
-  "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/4814/4814489.png",
+      "src": "https://fonts.gstatic.com/s/e/notoemoji/latest/26fd/512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/4814/4814489.png",
-      "sizes": "192x192",
-      "type": "image/png"
     }
   ]
 }
