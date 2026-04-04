@@ -15,7 +15,6 @@
         body { background-color: var(--dark); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .app-container { background: #fff; width: 100%; max-width: 450px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; }
         
-        /* بانر التثبيت المخصص */
         #manual-install-banner { display: none; background: var(--accent); color: white; padding: 12px; text-align: center; flex-direction: column; align-items: center; gap: 8px; border-bottom: 2px solid rgba(0,0,0,0.1); }
         #install-button { background: white; color: var(--accent); border: none; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
 
@@ -66,7 +65,7 @@
         <div id="next-fuel-date" class="next-date-label">موعدك القادم: --</div>
         
         <button class="btn-fuel" id="fuel-btn" onclick="saveAction()">تأكيد التعبئة الآن ✅</button>
-        <button style="background:none; border:none; color:var(--danger); font-size:0.8rem; cursor:pointer; margin-top:5px;" onclick="resetLog()">مسح السجل نهائياً 🗑️</button>
+        <button style="background:none; border:none; color:var(--danger); font-size:0.8rem; cursor:pointer; margin-top:5px;" onclick="resetLog()">مسح السجل 🗑️</button>
     </div>
 
     <div class="history-panel">
@@ -81,7 +80,6 @@
     const START_DATE = new Date(2026, 2, 31); 
     const CYCLE_DAYS = 5;
 
-    // --- 1. إدارة التثبيت (PWA) ---
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
@@ -92,32 +90,20 @@
         if (deferredPrompt) {
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                document.getElementById('manual-install-banner').style.display = 'none';
-            }
+            if (outcome === 'accepted') document.getElementById('manual-install-banner').style.display = 'none';
             deferredPrompt = null;
         }
     });
 
-    window.addEventListener('appinstalled', () => {
-        document.getElementById('manual-install-banner').style.display = 'none';
-        alert("تم التثبيت بنجاح! يرجى فتح التطبيق من الأيقونة على الشاشة الرئيسية.");
-    });
-
-    // --- 2. إدارة قاعدة البيانات والتخزين الدائم ---
     async function requestPersistence() {
-        if (navigator.storage && navigator.storage.persist) {
-            await navigator.storage.persist();
-        }
+        if (navigator.storage && navigator.storage.persist) await navigator.storage.persist();
     }
 
-    const request = indexedDB.open("FuelUltimateDB", 7); // نسخة جديدة لضمان التحديث
-    
+    // فتح قاعدة البيانات
+    const request = indexedDB.open("FuelUltimateDB", 8);
     request.onupgradeneeded = e => {
         db = e.target.result;
-        if (!db.objectStoreNames.contains("logs")) {
-            db.createObjectStore("logs", { keyPath: "id" });
-        }
+        if (!db.objectStoreNames.contains("logs")) db.createObjectStore("logs", { keyPath: "id" });
     };
 
     request.onsuccess = e => {
@@ -128,13 +114,10 @@
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').then(reg => {
-                reg.update();
-            });
+            navigator.serviceWorker.register('./sw.js').then(reg => reg.update());
         });
     }
 
-    // --- 3. وظائف التطبيق ---
     function updateUI() {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -178,8 +161,8 @@
         };
     }
 
+    // تم حذف Confirm و Alert لتسجيل فوري
     function saveAction() {
-        if (!confirm("هل تريد تأكيد تسجيل تعبئة الوقود لهذه الدورة؟")) return;
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const diff = Math.floor((today - START_DATE) / 86400000);
@@ -194,10 +177,7 @@
 
         const tx = db.transaction("logs", "readwrite");
         tx.objectStore("logs").add(entry);
-        tx.oncomplete = () => {
-            updateUI();
-            alert("تم حفظ العملية في ذاكرة الهاتف بنجاح ⛽");
-        };
+        tx.oncomplete = () => updateUI();
     }
 
     function renderLogs(logs) {
@@ -206,7 +186,8 @@
     }
 
     function resetLog() {
-        if(confirm("تحذير: سيتم مسح سجل التعبئة بالكامل من ذاكرة الهاتف. هل أنت متأكد؟")) {
+        // حافظنا فقط على تأكيد المسح لأنه إجراء خطير قد يضيع البيانات بالخطأ
+        if(confirm("تحذير: سيتم مسح سجل التعبئة بالكامل. هل أنت متأكد؟")) {
             const tx = db.transaction("logs", "readwrite");
             tx.objectStore("logs").clear();
             tx.oncomplete = () => updateUI();
