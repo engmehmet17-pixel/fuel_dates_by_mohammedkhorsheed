@@ -1,8 +1,7 @@
 {
-  "name": "مواعيد تزويد الوقود",
-  "short_name": "مواعيد الوقود",
-  "description": "تطبيق لتنظيم ومتابعة مواعيد تزويد الوقود في كركوك",
-  "start_url": "index.html",
+  "name": "تطبيق الوقود - كركوك",
+  "short_name": "الوقود",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
@@ -10,8 +9,7 @@
     {
       "src": "https://fonts.gstatic.com/s/e/notoemoji/latest/26fd/512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
