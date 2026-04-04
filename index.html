@@ -4,43 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#2c3e50">
-    <title>تطبيق الوقود - م. محمد سهران</title>
-    <link rel="manifest" href="https://engmehmet17-pixel.github.io/fuel_dates_by_mohammedkhorsheed/manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>تطبيق الوقود - كركوك</title>
+
+    <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="https://fonts.gstatic.com/s/e/notoemoji/latest/26fd/512.png">
+
     <style>
         :root { --primary: #2ecc71; --danger: #e74c3c; --accent: #3498db; --dark: #2c3e50; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { background-color: var(--dark); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .app-container { background: #fff; width: 100%; max-width: 450px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; }
-        #install-banner { display: none; position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: var(--dark); color: white; padding: 15px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 9999; width: 90%; justify-content: space-between; align-items: center; border: 2px solid var(--accent); }
-        #install-banner button { background: var(--accent); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
         .header { background: var(--dark); color: white; padding: 15px; text-align: center; border-bottom: 3px solid var(--accent); }
         .header h1 { font-size: 1.1rem; }
         .dev-info { font-size: 0.65rem; opacity: 0.7; margin-top: 3px; }
         #date-display { color: var(--accent); font-weight: bold; font-size: 0.85rem; margin-top: 5px; }
+
         .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 20px; }
         .status-ring { width: 150px; height: 150px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 8px solid #eee; position: relative; transition: 0.4s; }
         .status-ring.active { border-color: var(--primary); box-shadow: 0 0 25px rgba(46, 204, 113, 0.3); }
         .status-ring.locked { border-color: #bdc3c7; }
-        .fuel-emoji { font-size: 5rem; line-height: 1; }
+        .fuel-emoji { font-size: 5rem; }
+        
         .day-badge { position: absolute; top: -15px; background: var(--accent); color: white; padding: 4px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
         .remain-label { font-size: 1.3rem; font-weight: bold; color: var(--dark); text-align: center; }
         .next-date-label { font-size: 0.9rem; color: #555; background: #f0f7ff; padding: 8px 15px; border-radius: 10px; border: 1px dashed var(--accent); margin-top: 5px; }
+
         .btn-fuel { background: var(--primary); color: white; border: none; padding: 18px; border-radius: 40px; font-size: 1.2rem; font-weight: bold; cursor: pointer; width: 85%; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); transition: 0.2s; }
-        .btn-fuel:disabled { background: #bdc3c7; box-shadow: none; opacity: 0.7; }
-        .history-panel { background: #f9f9f9; border-top: 1px solid #eee; padding: 15px; height: 140px; overflow: hidden; }
+        .btn-fuel:disabled { background: #bdc3c7; opacity: 0.7; transform: scale(1); }
+        .btn-fuel:active { transform: scale(0.95); }
+
+        .history-panel { background: #f9f9f9; border-top: 1px solid #eee; padding: 15px; height: 140px; }
         .log-container { height: 90px; overflow-y: auto; font-size: 0.8rem; margin-top: 5px; }
-        .log-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; }
+        .log-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
-
-<div id="install-banner">
-    <span>ثبّت التطبيق للعمل أوفلاين ⛽</span>
-    <button onclick="installApp()">تثبيت</button>
-</div>
 
 <div class="app-container">
     <div class="header">
@@ -58,7 +58,7 @@
         <div id="next-fuel-date" class="next-date-label">موعدك القادم: --</div>
         
         <button class="btn-fuel" id="fuel-btn" onclick="saveAction()">تأكيد التعبئة الآن ✅</button>
-        <button style="background:none; border:none; color:var(--danger); font-weight:bold; cursor:pointer;" onclick="resetLog()">مسح السجل 🗑️</button>
+        <button style="background:none; border:none; color:var(--danger); font-weight:bold; cursor:pointer; margin-top:5px;" onclick="resetLog()">مسح السجل 🗑️</button>
     </div>
 
     <div class="history-panel">
@@ -68,43 +68,30 @@
 </div>
 
 <script>
-    let deferredPrompt;
     let db;
-
-    // تهيئة قاعدة البيانات الثابتة (IndexedDB)
-    const request = indexedDB.open("FuelAppDB", 1);
-    request.onupgradeneeded = e => {
-        db = e.target.result;
-        db.createObjectStore("logs", { keyPath: "id", autoIncrement: true });
-    };
-    request.onsuccess = e => {
-        db = e.target.result;
-        updateUI();
-    };
-
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('https://engmehmet17-pixel.github.io/fuel_dates_by_mohammedkhorsheed/sw.js');
-        });
-    }
-
-    window.addEventListener('beforeinstallprompt', e => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('install-banner').style.display = 'flex';
-    });
-
-    function installApp() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt = null;
-            document.getElementById('install-banner').style.display = 'none';
-        }
-    }
-
     const START_DATE = new Date(2026, 2, 31); 
     const CYCLE_DAYS = 5;
 
+    // 1. طلب التخزين الدائم من الهاتف
+    async function initStorage() {
+        if (navigator.storage && navigator.storage.persist) {
+            await navigator.storage.persist();
+        }
+        
+        const request = indexedDB.open("FuelFinalDB", 3);
+        request.onupgradeneeded = e => {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains("logs")) {
+                db.createObjectStore("logs", { keyPath: "id" });
+            }
+        };
+        request.onsuccess = e => {
+            db = e.target.result;
+            updateUI();
+        };
+    }
+
+    // 2. تحديث الواجهة والتحقق من التخزين المزدوج
     function updateUI() {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -119,13 +106,22 @@
         document.getElementById('next-fuel-date').innerText = `موعدك الرسمي القادم: ${nextDate.toLocaleDateString('ar-IQ', {day:'numeric', month:'long'})}`;
         document.getElementById('day-txt').innerText = `اليوم ${dayInCycle} من ${CYCLE_DAYS}`;
 
-        // استخراج البيانات من قاعدة البيانات الثابتة
+        if (!db) return;
         const transaction = db.transaction("logs", "readonly");
         const store = transaction.objectStore("logs");
         const getAll = store.getAll();
 
         getAll.onsuccess = () => {
-            const logs = getAll.result.sort((a, b) => b.id - a.id);
+            let logs = getAll.result;
+            // المزامنة مع النسخة الاحتياطية في حال مسح المتصفح للبيانات
+            const backup = JSON.parse(localStorage.getItem('FuelApp_Backup') || "[]");
+            if (logs.length === 0 && backup.length > 0) {
+                logs = backup;
+                const tx = db.transaction("logs", "readwrite");
+                backup.forEach(item => tx.objectStore("logs").put(item));
+            }
+
+            logs.sort((a, b) => b.id - a.id);
             const cycleId = diff - (dayInCycle - 1);
             const isDone = logs.some(l => l.cid === cycleId);
 
@@ -148,6 +144,7 @@
         };
     }
 
+    // 3. حفظ البيانات في مكانين (DB + LocalStorage)
     function saveAction() {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -155,15 +152,20 @@
         const dayInCycle = ((diff % CYCLE_DAYS) + CYCLE_DAYS) % CYCLE_DAYS + 1;
 
         const entry = {
+            id: Date.now(),
             d: now.toLocaleDateString('ar-IQ'),
             t: now.toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'}),
-            cid: diff - (dayInCycle - 1),
-            timestamp: Date.now()
+            cid: diff - (dayInCycle - 1)
         };
 
-        const transaction = db.transaction("logs", "readwrite");
-        transaction.objectStore("logs").add(entry);
-        transaction.oncomplete = () => updateUI();
+        const tx = db.transaction("logs", "readwrite");
+        tx.objectStore("logs").add(entry);
+
+        let backup = JSON.parse(localStorage.getItem('FuelApp_Backup') || "[]");
+        backup.unshift(entry);
+        localStorage.setItem('FuelApp_Backup', JSON.stringify(backup.slice(0, 20)));
+
+        tx.oncomplete = () => updateUI();
     }
 
     function renderLogs(logs) {
@@ -172,12 +174,19 @@
     }
 
     function resetLog() {
-        if(confirm("هل تريد مسح السجل؟")) {
-            const transaction = db.transaction("logs", "readwrite");
-            transaction.objectStore("logs").clear();
-            transaction.oncomplete = () => updateUI();
+        if(confirm("هل تريد مسح السجل نهائياً؟")) {
+            localStorage.removeItem('FuelApp_Backup');
+            const tx = db.transaction("logs", "readwrite");
+            tx.objectStore("logs").clear();
+            tx.oncomplete = () => updateUI();
         }
     }
+
+    // تسجيل الخدمة للعمل بدون إنترنت
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+    window.onload = initStorage;
 </script>
 </body>
 </html>
