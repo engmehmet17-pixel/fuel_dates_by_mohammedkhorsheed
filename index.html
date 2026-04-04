@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#2c3e50">
     <title>تطبيق الوقود - كركوك ⛽</title>
 
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" href="https://fonts.gstatic.com/s/e/notoemoji/latest/26fd/512.png">
 
     <style>
@@ -32,6 +32,7 @@
 
         .btn-fuel { background: var(--primary); color: white; border: none; padding: 18px; border-radius: 40px; font-size: 1.2rem; font-weight: bold; cursor: pointer; width: 85%; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); transition: 0.2s; }
         .btn-fuel:disabled { background: #bdc3c7; opacity: 0.7; }
+        .btn-fuel:active { transform: scale(0.98); }
 
         .history-panel { background: #f9f9f9; border-top: 1px solid #eee; padding: 15px; height: 140px; overflow: hidden; }
         .log-container { height: 90px; overflow-y: auto; font-size: 0.8rem; margin-top: 5px; }
@@ -70,27 +71,39 @@
     const START_DATE = new Date(2026, 2, 31); 
     const CYCLE_DAYS = 5;
 
-    // 1. طلب التخزين الدائم فور فتح التطبيق
+    // 1. طلب الحماية الدائمة للبيانات من نظام الأندرويد
     async function requestPersistence() {
         if (navigator.storage && navigator.storage.persist) {
             const isPersisted = await navigator.storage.persist();
-            console.log(`حالة حماية البيانات: ${isPersisted ? "دائمة" : "مؤقتة"}`);
+            console.log(`حالة حماية البيانات: ${isPersisted ? "دائمة ومحجوزة" : "مؤقتة"}`);
         }
     }
 
-    // 2. تهيئة قاعدة البيانات العميقة
-    const request = indexedDB.open("FuelPersistentDB", 4);
+    // 2. تهيئة قاعدة البيانات القوية (إصدار 5 لضمان التحديث)
+    const request = indexedDB.open("FuelUltimateDB", 5);
+    
     request.onupgradeneeded = e => {
         db = e.target.result;
         if (!db.objectStoreNames.contains("logs")) {
             db.createObjectStore("logs", { keyPath: "id" });
         }
     };
+
     request.onsuccess = e => {
         db = e.target.result;
         requestPersistence();
         updateUI();
     };
+
+    // 3. كود تسجيل الـ Service Worker لضمان ظهور زر التثبيت والعمل أوفلاين
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').then(reg => {
+                reg.update(); // إجبار المتصفح على التحقق من وجود نسخة أوفلاين جديدة
+                console.log('تم تفعيل نظام الأوفلاين بنجاح');
+            }).catch(err => console.log('خطأ في تسجيل الخدمة:', err));
+        });
+    }
 
     function updateUI() {
         const now = new Date();
@@ -99,6 +112,7 @@
 
         const diff = Math.floor((today - START_DATE) / 86400000);
         const dayInCycle = ((diff % CYCLE_DAYS) + CYCLE_DAYS) % CYCLE_DAYS + 1;
+        
         let daysToWait = (dayInCycle === 1) ? 0 : (CYCLE_DAYS - dayInCycle + 1);
         const nextDate = new Date(today);
         nextDate.setDate(today.getDate() + daysToWait);
@@ -164,10 +178,6 @@
             tx.objectStore("logs").clear();
             tx.oncomplete = () => updateUI();
         }
-    }
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
     }
 </script>
 </body>
