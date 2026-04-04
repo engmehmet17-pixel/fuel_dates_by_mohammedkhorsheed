@@ -15,36 +15,45 @@
         body { background-color: var(--dark); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .app-container { background: #fff; width: 100%; max-width: 450px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; }
         
+        /* بانر التثبيت المخصص */
+        #manual-install-banner { display: none; background: var(--accent); color: white; padding: 12px; text-align: center; flex-direction: column; align-items: center; gap: 8px; border-bottom: 2px solid rgba(0,0,0,0.1); }
+        #install-button { background: white; color: var(--accent); border: none; padding: 8px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+
         .header { background: var(--dark); color: white; padding: 15px; text-align: center; border-bottom: 3px solid var(--accent); }
         .header h1 { font-size: 1.1rem; }
         .dev-info { font-size: 0.65rem; opacity: 0.7; margin-top: 3px; }
         #date-display { color: var(--accent); font-weight: bold; font-size: 0.85rem; margin-top: 5px; }
 
         .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 20px; }
-        .status-ring { width: 150px; height: 150px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 8px solid #eee; position: relative; transition: 0.4s; }
+        .status-ring { width: 140px; height: 140px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 8px solid #eee; position: relative; transition: 0.4s; }
         .status-ring.active { border-color: var(--primary); box-shadow: 0 0 25px rgba(46, 204, 113, 0.3); }
         .status-ring.locked { border-color: #bdc3c7; }
-        .fuel-emoji { font-size: 5rem; }
+        .fuel-emoji { font-size: 4.5rem; }
         
         .day-badge { position: absolute; top: -15px; background: var(--accent); color: white; padding: 4px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
-        .remain-label { font-size: 1.3rem; font-weight: bold; color: var(--dark); text-align: center; }
-        .next-date-label { font-size: 0.9rem; color: #555; background: #f0f7ff; padding: 8px 15px; border-radius: 10px; border: 1px dashed var(--accent); margin-top: 5px; }
+        .remain-label { font-size: 1.2rem; font-weight: bold; color: var(--dark); text-align: center; }
+        .next-date-label { font-size: 0.85rem; color: #555; background: #f0f7ff; padding: 8px 12px; border-radius: 10px; border: 1px dashed var(--accent); margin-top: 5px; }
 
-        .btn-fuel { background: var(--primary); color: white; border: none; padding: 18px; border-radius: 40px; font-size: 1.2rem; font-weight: bold; cursor: pointer; width: 85%; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); transition: 0.2s; }
+        .btn-fuel { background: var(--primary); color: white; border: none; padding: 18px; border-radius: 40px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 85%; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); transition: 0.2s; }
         .btn-fuel:disabled { background: #bdc3c7; opacity: 0.7; }
-        .btn-fuel:active { transform: scale(0.98); }
+        .btn-fuel:active { transform: scale(0.96); }
 
-        .history-panel { background: #f9f9f9; border-top: 1px solid #eee; padding: 15px; height: 140px; overflow: hidden; }
-        .log-container { height: 90px; overflow-y: auto; font-size: 0.8rem; margin-top: 5px; }
-        .log-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; }
+        .history-panel { background: #f9f9f9; border-top: 1px solid #eee; padding: 12px; height: 140px; overflow: hidden; }
+        .log-container { height: 90px; overflow-y: auto; font-size: 0.75rem; margin-top: 5px; }
+        .log-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
+    <div id="manual-install-banner">
+        <span>ثبّت التطبيق لحماية سجل التعبئة ⛽</span>
+        <button id="install-button">تثبيت الآن</button>
+    </div>
+
     <div class="header">
-        <h1>مواعيد تزويد الوقود - كركوك ⛽</h1>
-        <div class="dev-info">فكرة وتصميم: م.محمد سهران خورشيد © 2026</div>
+        <h1>مواعيد تزويد الوقود - كركوك</h1>
+        <div class="dev-info">تصميم م.محمد سهران خورشيد © 2026</div>
         <div id="date-display"></div>
     </div>
 
@@ -53,11 +62,11 @@
             <span class="day-badge" id="day-txt">..</span>
             <span class="fuel-emoji">⛽</span>
         </div>
-        <div class="remain-label" id="remain-txt">جاري الحساب...</div>
+        <div class="remain-label" id="remain-txt">جاري المزامنة...</div>
         <div id="next-fuel-date" class="next-date-label">موعدك القادم: --</div>
         
         <button class="btn-fuel" id="fuel-btn" onclick="saveAction()">تأكيد التعبئة الآن ✅</button>
-        <button style="background:none; border:none; color:var(--danger); font-weight:bold; cursor:pointer; margin-top:5px;" onclick="resetLog()">مسح السجل 🗑️</button>
+        <button style="background:none; border:none; color:var(--danger); font-size:0.8rem; cursor:pointer; margin-top:5px;" onclick="resetLog()">مسح السجل نهائياً 🗑️</button>
     </div>
 
     <div class="history-panel">
@@ -68,19 +77,41 @@
 
 <script>
     let db;
+    let deferredPrompt;
     const START_DATE = new Date(2026, 2, 31); 
     const CYCLE_DAYS = 5;
 
-    // 1. طلب الحماية الدائمة للبيانات من نظام الأندرويد
+    // --- 1. إدارة التثبيت (PWA) ---
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('manual-install-banner').style.display = 'flex';
+    });
+
+    document.getElementById('install-button').addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                document.getElementById('manual-install-banner').style.display = 'none';
+            }
+            deferredPrompt = null;
+        }
+    });
+
+    window.addEventListener('appinstalled', () => {
+        document.getElementById('manual-install-banner').style.display = 'none';
+        alert("تم التثبيت بنجاح! يرجى فتح التطبيق من الأيقونة على الشاشة الرئيسية.");
+    });
+
+    // --- 2. إدارة قاعدة البيانات والتخزين الدائم ---
     async function requestPersistence() {
         if (navigator.storage && navigator.storage.persist) {
-            const isPersisted = await navigator.storage.persist();
-            console.log(`حالة حماية البيانات: ${isPersisted ? "دائمة ومحجوزة" : "مؤقتة"}`);
+            await navigator.storage.persist();
         }
     }
 
-    // 2. تهيئة قاعدة البيانات القوية (إصدار 5 لضمان التحديث)
-    const request = indexedDB.open("FuelUltimateDB", 5);
+    const request = indexedDB.open("FuelUltimateDB", 7); // نسخة جديدة لضمان التحديث
     
     request.onupgradeneeded = e => {
         db = e.target.result;
@@ -95,16 +126,15 @@
         updateUI();
     };
 
-    // 3. كود تسجيل الـ Service Worker لضمان ظهور زر التثبيت والعمل أوفلاين
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js').then(reg => {
-                reg.update(); // إجبار المتصفح على التحقق من وجود نسخة أوفلاين جديدة
-                console.log('تم تفعيل نظام الأوفلاين بنجاح');
-            }).catch(err => console.log('خطأ في تسجيل الخدمة:', err));
+                reg.update();
+            });
         });
     }
 
+    // --- 3. وظائف التطبيق ---
     function updateUI() {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -112,7 +142,6 @@
 
         const diff = Math.floor((today - START_DATE) / 86400000);
         const dayInCycle = ((diff % CYCLE_DAYS) + CYCLE_DAYS) % CYCLE_DAYS + 1;
-        
         let daysToWait = (dayInCycle === 1) ? 0 : (CYCLE_DAYS - dayInCycle + 1);
         const nextDate = new Date(today);
         nextDate.setDate(today.getDate() + daysToWait);
@@ -150,6 +179,7 @@
     }
 
     function saveAction() {
+        if (!confirm("هل تريد تأكيد تسجيل تعبئة الوقود لهذه الدورة؟")) return;
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const diff = Math.floor((today - START_DATE) / 86400000);
@@ -164,7 +194,10 @@
 
         const tx = db.transaction("logs", "readwrite");
         tx.objectStore("logs").add(entry);
-        tx.oncomplete = () => updateUI();
+        tx.oncomplete = () => {
+            updateUI();
+            alert("تم حفظ العملية في ذاكرة الهاتف بنجاح ⛽");
+        };
     }
 
     function renderLogs(logs) {
@@ -173,7 +206,7 @@
     }
 
     function resetLog() {
-        if(confirm("هل تريد مسح السجل نهائياً؟")) {
+        if(confirm("تحذير: سيتم مسح سجل التعبئة بالكامل من ذاكرة الهاتف. هل أنت متأكد؟")) {
             const tx = db.transaction("logs", "readwrite");
             tx.objectStore("logs").clear();
             tx.oncomplete = () => updateUI();
