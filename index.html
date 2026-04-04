@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#2c3e50">
-    <title>تطبيق الوقود - كركوك</title>
+    <title>تطبيق الوقود - كركوك ⛽</title>
 
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="https://fonts.gstatic.com/s/e/notoemoji/latest/26fd/512.png">
@@ -31,13 +31,11 @@
         .next-date-label { font-size: 0.9rem; color: #555; background: #f0f7ff; padding: 8px 15px; border-radius: 10px; border: 1px dashed var(--accent); margin-top: 5px; }
 
         .btn-fuel { background: var(--primary); color: white; border: none; padding: 18px; border-radius: 40px; font-size: 1.2rem; font-weight: bold; cursor: pointer; width: 85%; box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4); transition: 0.2s; }
-        .btn-fuel:disabled { background: #bdc3c7; opacity: 0.7; transform: scale(1); }
-        .btn-fuel:active { transform: scale(0.95); }
+        .btn-fuel:disabled { background: #bdc3c7; opacity: 0.7; }
 
-        .history-panel { background: #f9f9f9; border-top: 1px solid #eee; padding: 15px; height: 140px; }
+        .history-panel { background: #f9f9f9; border-top: 1px solid #eee; padding: 15px; height: 140px; overflow: hidden; }
         .log-container { height: 90px; overflow-y: auto; font-size: 0.8rem; margin-top: 5px; }
-        .log-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .log-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -72,26 +70,28 @@
     const START_DATE = new Date(2026, 2, 31); 
     const CYCLE_DAYS = 5;
 
-    // 1. طلب التخزين الدائم من الهاتف
-    async function initStorage() {
+    // 1. طلب التخزين الدائم فور فتح التطبيق
+    async function requestPersistence() {
         if (navigator.storage && navigator.storage.persist) {
-            await navigator.storage.persist();
+            const isPersisted = await navigator.storage.persist();
+            console.log(`حالة حماية البيانات: ${isPersisted ? "دائمة" : "مؤقتة"}`);
         }
-        
-        const request = indexedDB.open("FuelFinalDB", 3);
-        request.onupgradeneeded = e => {
-            db = e.target.result;
-            if (!db.objectStoreNames.contains("logs")) {
-                db.createObjectStore("logs", { keyPath: "id" });
-            }
-        };
-        request.onsuccess = e => {
-            db = e.target.result;
-            updateUI();
-        };
     }
 
-    // 2. تحديث الواجهة والتحقق من التخزين المزدوج
+    // 2. تهيئة قاعدة البيانات العميقة
+    const request = indexedDB.open("FuelPersistentDB", 4);
+    request.onupgradeneeded = e => {
+        db = e.target.result;
+        if (!db.objectStoreNames.contains("logs")) {
+            db.createObjectStore("logs", { keyPath: "id" });
+        }
+    };
+    request.onsuccess = e => {
+        db = e.target.result;
+        requestPersistence();
+        updateUI();
+    };
+
     function updateUI() {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -112,16 +112,7 @@
         const getAll = store.getAll();
 
         getAll.onsuccess = () => {
-            let logs = getAll.result;
-            // المزامنة مع النسخة الاحتياطية في حال مسح المتصفح للبيانات
-            const backup = JSON.parse(localStorage.getItem('FuelApp_Backup') || "[]");
-            if (logs.length === 0 && backup.length > 0) {
-                logs = backup;
-                const tx = db.transaction("logs", "readwrite");
-                backup.forEach(item => tx.objectStore("logs").put(item));
-            }
-
-            logs.sort((a, b) => b.id - a.id);
+            const logs = getAll.result.sort((a, b) => b.id - a.id);
             const cycleId = diff - (dayInCycle - 1);
             const isDone = logs.some(l => l.cid === cycleId);
 
@@ -144,7 +135,6 @@
         };
     }
 
-    // 3. حفظ البيانات في مكانين (DB + LocalStorage)
     function saveAction() {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -160,11 +150,6 @@
 
         const tx = db.transaction("logs", "readwrite");
         tx.objectStore("logs").add(entry);
-
-        let backup = JSON.parse(localStorage.getItem('FuelApp_Backup') || "[]");
-        backup.unshift(entry);
-        localStorage.setItem('FuelApp_Backup', JSON.stringify(backup.slice(0, 20)));
-
         tx.oncomplete = () => updateUI();
     }
 
@@ -175,18 +160,15 @@
 
     function resetLog() {
         if(confirm("هل تريد مسح السجل نهائياً؟")) {
-            localStorage.removeItem('FuelApp_Backup');
             const tx = db.transaction("logs", "readwrite");
             tx.objectStore("logs").clear();
             tx.oncomplete = () => updateUI();
         }
     }
 
-    // تسجيل الخدمة للعمل بدون إنترنت
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js');
     }
-    window.onload = initStorage;
 </script>
 </body>
 </html>
