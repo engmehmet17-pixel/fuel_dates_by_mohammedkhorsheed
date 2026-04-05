@@ -62,7 +62,7 @@
             <span class="fuel-emoji">⛽</span>
         </div>
         <div class="remain-label" id="remain-txt">جاري المزامنة...</div>
-        <div id="next-fuel-date" class="next-date-label">موعدك القادم: --</div>
+        <div id="next-fuel-date" class="next-date-label">موعد التفعيل القادم: --</div>
         
         <button class="btn-fuel" id="fuel-btn" onclick="saveAction()">تأكيد التعبئة الآن ✅</button>
         <button style="background:none; border:none; color:var(--danger); font-size:0.8rem; cursor:pointer; margin-top:5px;" onclick="resetLog()">مسح السجل 🗑️</button>
@@ -99,8 +99,7 @@
         if (navigator.storage && navigator.storage.persist) await navigator.storage.persist();
     }
 
-    // فتح قاعدة البيانات
-    const request = indexedDB.open("FuelUltimateDB", 8);
+    const request = indexedDB.open("FuelUltimateDB", 9);
     request.onupgradeneeded = e => {
         db = e.target.result;
         if (!db.objectStoreNames.contains("logs")) db.createObjectStore("logs", { keyPath: "id" });
@@ -123,14 +122,22 @@
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         document.getElementById('date-display').innerText = now.toLocaleDateString('ar-IQ', { weekday: 'long', day: 'numeric', month: 'long' });
 
-        const diff = Math.floor((today - START_DATE) / 86400000);
-        const dayInCycle = ((diff % CYCLE_DAYS) + CYCLE_DAYS) % CYCLE_DAYS + 1;
-        let daysToWait = (dayInCycle === 1) ? 0 : (CYCLE_DAYS - dayInCycle + 1);
-        const nextDate = new Date(today);
-        nextDate.setDate(today.getDate() + daysToWait);
+        const totalDiff = Math.floor((today - START_DATE) / 86400000);
+        const dayInCycle = ((totalDiff % CYCLE_DAYS) + CYCLE_DAYS) % CYCLE_DAYS + 1;
         
-        document.getElementById('next-fuel-date').innerText = `موعدك الرسمي القادم: ${nextDate.toLocaleDateString('ar-IQ', {day:'numeric', month:'long'})}`;
-        document.getElementById('day-txt').innerText = `اليوم ${dayInCycle} من ${CYCLE_DAYS}`;
+        // حساب بداية الدورة الحالية
+        const currentCycleStart = new Date(today);
+        currentCycleStart.setDate(today.getDate() - (dayInCycle - 1));
+        
+        // حساب "بداية الدورة القادمة" (بإضافة 5 أيام للدورة الحالية)
+        const nextCycleDate = new Date(currentCycleStart);
+        nextCycleDate.setDate(currentCycleStart.getDate() + CYCLE_DAYS);
+        
+        // تنسيق التاريخ (يوم-شهر-سنة)
+        const d = String(nextCycleDate.getDate()).padStart(2, '0');
+        const m = String(nextCycleDate.getMonth() + 1).padStart(2, '0');
+        const y = nextCycleDate.getFullYear();
+        const formattedNextDate = `${d}-${m}-${y}`;
 
         if (!db) return;
         const transaction = db.transaction("logs", "readonly");
@@ -139,12 +146,13 @@
 
         getAll.onsuccess = () => {
             const logs = getAll.result.sort((a, b) => b.id - a.id);
-            const cycleId = diff - (dayInCycle - 1);
+            const cycleId = totalDiff - (dayInCycle - 1);
             const isDone = logs.some(l => l.cid === cycleId);
 
             const btn = document.getElementById('fuel-btn');
             const ring = document.getElementById('ring');
             const txt = document.getElementById('remain-txt');
+            const nextFuelLabel = document.getElementById('next-fuel-date');
 
             if (isDone) {
                 ring.className = "status-ring locked";
@@ -157,11 +165,15 @@
                 btn.innerText = "تأكيد التعبئة الآن ✅";
                 txt.innerText = "التعبئة متاحة حالياً";
             }
+
+            // الخانة الآن تعرض الموعد القادم (10-04-2026 في مثالك)
+            nextFuelLabel.innerText = `موعد التفعيل القادم: ${formattedNextDate}`;
+            
+            document.getElementById('day-txt').innerText = `اليوم ${dayInCycle} من ${CYCLE_DAYS}`;
             renderLogs(logs);
         };
     }
 
-    // تم حذف Confirm و Alert لتسجيل فوري
     function saveAction() {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -186,7 +198,6 @@
     }
 
     function resetLog() {
-        // حافظنا فقط على تأكيد المسح لأنه إجراء خطير قد يضيع البيانات بالخطأ
         if(confirm("تحذير: سيتم مسح سجل التعبئة بالكامل. هل أنت متأكد؟")) {
             const tx = db.transaction("logs", "readwrite");
             tx.objectStore("logs").clear();
